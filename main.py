@@ -1,8 +1,8 @@
+import json
 import tkinter
 import random
 import pyperclip
 from tkinter import messagebox, END, E
-import json
 
 letters = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm',
            'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z',
@@ -71,6 +71,10 @@ def add_password():
         if password_checking(password_input.get()):
             with open("password_book.json", mode="w") as password_file:
                 json.dump(format_data, password_file, indent=4)
+            with open("password_book.txt", mode="a") as password_file:
+                password_file.write(f"website: {website} "
+                                    f"\nEmail /Username: {username} "
+                                    f"\nPassword: {password}\n\n")
                 website_input.delete(0, END)
                 username_input.delete(0, END)
                 password_input.delete(0, END)
