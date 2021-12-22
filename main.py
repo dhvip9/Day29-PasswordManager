@@ -11,8 +11,8 @@ letters = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm',
 
 numbers = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9']
 
-symbols = ['!', '#', '$', '%', '&', '(', ')', '*', '+', '"',
-           '^', ',', '.', ':', '|', '=', '?', '@', '/', ']']
+symbols = ['!', '#', '$', '%', '&', '(', ')', '*', '+',
+           '^', ',', '.', ':', '|', '=', '?', '@', ']']
 
 
 frame = tkinter.Tk()
@@ -59,25 +59,42 @@ def add_password():
     website = website_input.get()
     username = username_input.get()
     password = password_input.get()
-    format_data = {website: {
+    format_data = {str(website).lower(): {
                 "username": username,
                 "password": password
     }}
+
     if len(website_input.get()) < 1 or len(username_input.get()) < 1 or len(password_input.get()) < 1:
         messagebox.showwarning('Ok', "Field is Empty")
-    elif messagebox.askokcancel(title=website, message=f"There are the details entered:"
-                                                       f" \nEmail /Username:  {username}"
-                                                       f"\nPassword:  {password}"):
+    else:
         if password_checking(password_input.get()):
+            # read
+            with open("password_book.json", mode="r") as password_file:
+                data = json.load(password_file)
+                data.update(format_data)
+
+            # write
             with open("password_book.json", mode="w") as password_file:
-                json.dump(format_data, password_file, indent=4)
-            with open("password_book.txt", mode="a") as password_file:
-                password_file.write(f"website: {website} "
-                                    f"\nEmail /Username: {username} "
-                                    f"\nPassword: {password}\n\n")
+                json.dump(data, password_file, indent=4)
                 website_input.delete(0, END)
                 username_input.delete(0, END)
                 password_input.delete(0, END)
+
+
+def search():
+    try:
+        with open("password_book.json") as password_file:
+            data = json.load(password_file)
+            website = str(website_input.get()).lower()
+            username_input.delete(0, END)
+            password_input.delete(0, END)
+            username_input.insert(0, data[website]["username"])
+            password_input.insert(0, data[website]["password"])
+    except KeyError:
+        messagebox.showwarning('Ok', "Website is not Found")
+        website_input.delete(0, END)
+        username_input.delete(0, END)
+        password_input.delete(0, END)
 
 
 # canvas
@@ -121,7 +138,7 @@ add_button = tkinter.Button(text="Add", bd=0, width=38, font=("Arial", 15, "bold
 add_button.grid(row=4, column=1, columnspan=2)
 
 search_button = tkinter.Button(text="Search", bd=0, font=("Arial", 15),
-                               command=add_password, fg="#000000", width=14)
+                               command=search, fg="#000000", width=14)
 search_button.grid(row=1, column=2, sticky=E)
 
 frame.mainloop()
