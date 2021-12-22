@@ -1,7 +1,8 @@
 import tkinter
 import random
 import pyperclip
-from tkinter import messagebox, END
+from tkinter import messagebox, END, E
+import json
 
 letters = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm',
            'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z',
@@ -58,16 +59,18 @@ def add_password():
     website = website_input.get()
     username = username_input.get()
     password = password_input.get()
+    format_data = {website: {
+                "username": username,
+                "password": password
+    }}
     if len(website_input.get()) < 1 or len(username_input.get()) < 1 or len(password_input.get()) < 1:
         messagebox.showwarning('Ok', "Field is Empty")
     elif messagebox.askokcancel(title=website, message=f"There are the details entered:"
                                                        f" \nEmail /Username:  {username}"
                                                        f"\nPassword:  {password}"):
         if password_checking(password_input.get()):
-            with open("password_book.txt", mode="a") as password_file:
-                password_file.write(f"website: {website} "
-                                    f"\nEmail /Username: {username} "
-                                    f"\nPassword: {password}\n\n")
+            with open("password_book.json", mode="w") as password_file:
+                json.dump(format_data, password_file, indent=4)
                 website_input.delete(0, END)
                 username_input.delete(0, END)
                 password_input.delete(0, END)
@@ -93,8 +96,8 @@ password_label = tkinter.Label(text="Password:", font=("Arial", 15, "bold"),
 password_label.grid(row=3, column=0)
 
 # Entry
-website_input = tkinter.Entry(width=40)
-website_input.grid(row=1, column=1, columnspan=2)
+website_input = tkinter.Entry(width=22)
+website_input.grid(row=1, column=1, )
 website_input.focus()
 
 username_input = tkinter.Entry(width=40)
@@ -106,12 +109,15 @@ password_input.grid(row=3, column=1)
 # button
 pass_generate_button = tkinter.Button(text="Generate Password",
                                       bd=0, font=("Arial", 15),
-                                      command=pass_generate, fg="#000000")
+                                      command=pass_generate, fg="#000000", width=14)
 pass_generate_button.grid(row=3, column=2)
 
 add_button = tkinter.Button(text="Add", bd=0, width=38, font=("Arial", 15, "bold"),
                             command=add_password, fg="#000000")
 add_button.grid(row=4, column=1, columnspan=2)
 
+search_button = tkinter.Button(text="Search", bd=0, font=("Arial", 15),
+                               command=add_password, fg="#000000", width=14)
+search_button.grid(row=1, column=2, sticky=E)
 
 frame.mainloop()
