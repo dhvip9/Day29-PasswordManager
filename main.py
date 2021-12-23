@@ -55,7 +55,7 @@ def password_checking(password):
         return True
 
 
-def add_password():
+def add_detail():
     website = website_input.get()
     username = username_input.get()
     password = password_input.get()
@@ -68,14 +68,21 @@ def add_password():
         messagebox.showwarning('Ok', "Field is Empty")
     else:
         if password_checking(password_input.get()):
-            # read
-            with open("password_book.json", mode="r") as password_file:
-                data = json.load(password_file)
+            try:
+                with open("password_book.json", mode="r") as password_file:
+                    data = json.load(password_file)
+
+            except FileNotFoundError:
+                with open("password_book.json", mode="w") as password_file:
+                    json.dump(format_data, password_file, indent=4)
+
+            else:
                 data.update(format_data)
 
-            # write
-            with open("password_book.json", mode="w") as password_file:
-                json.dump(data, password_file, indent=4)
+                with open("password_book.json", mode="w") as password_file:
+                    json.dump(data, password_file, indent=4)
+
+            finally:
                 website_input.delete(0, END)
                 username_input.delete(0, END)
                 password_input.delete(0, END)
@@ -85,17 +92,20 @@ def search():
     try:
         with open("password_book.json") as password_file:
             data = json.load(password_file)
-            website = str(website_input.get()).lower()
-            username_input.delete(0, END)
-            password_input.delete(0, END)
-            username_input.insert(0, data[website]["username"])
-            password_input.insert(0, data[website]["password"])
     except KeyError:
         messagebox.showwarning('Ok', "Website is not Found")
         website_input.delete(0, END)
         username_input.delete(0, END)
         password_input.delete(0, END)
+    except FileNotFoundError:
+        messagebox.showwarning('Ok', "Website is not Found")
 
+    else:
+        website = str(website_input.get()).lower()
+        username_input.delete(0, END)
+        password_input.delete(0, END)
+        username_input.insert(0, data[website]["username"])
+        password_input.insert(0, data[website]["password"])
 
 # canvas
 canvas = tkinter.Canvas(width=200, height=200, highlightthickness=0)
@@ -134,7 +144,7 @@ pass_generate_button = tkinter.Button(text="Generate Password",
 pass_generate_button.grid(row=3, column=2)
 
 add_button = tkinter.Button(text="Add", bd=0, width=38, font=("Arial", 15, "bold"),
-                            command=add_password, fg="#000000")
+                            command=add_detail, fg="#000000")
 add_button.grid(row=4, column=1, columnspan=2)
 
 search_button = tkinter.Button(text="Search", bd=0, font=("Arial", 15),
